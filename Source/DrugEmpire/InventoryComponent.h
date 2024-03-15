@@ -50,6 +50,12 @@ public:
 	/*UFUNCTION(Server, Reliable, BlueprintCallable)
 	void ServerCountMoney(int ItemIndex, int NewIndex);*/
 
+	UFUNCTION(BlueprintCallable)
+	UItemBase* FindItemByIndex(int Index);
+
+	UFUNCTION(BlueprintCallable)
+	int FindIndexOfItem(UItemBase* Item);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -72,9 +78,6 @@ protected:
 private:	
 
 	void AddItem(UItemBase* Item);
-
-	UItemBase* FindItemByIndex(int Index);
-	int FindIndexOfItem(UItemBase* Item);
 
 	int FindIndexOfStackableItem(UItemBase* Item);
 	bool CheckStackable(UItemBase* Item);

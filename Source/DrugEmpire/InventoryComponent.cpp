@@ -63,7 +63,7 @@ void UInventoryComponent::ServerAddPickupItem_Implementation(AItemPickupActor* I
 		
 		int ItemStackSize = Item->ItemData->StackSize;
 
-		while (ItemStackSize > 0) {
+		while (ItemStackSize > 0) { // While the stack is overflowing the maximum stack size
 
 			UE_LOG(LogTemp, Warning, TEXT("[Stack Loop] %i - Stack Size to stack"), ItemStackSize);
 
@@ -73,10 +73,12 @@ void UInventoryComponent::ServerAddPickupItem_Implementation(AItemPickupActor* I
 				UE_LOG(LogTemp, Warning, TEXT("[Stack Loop] %i - Index"), StackableItemIndex);
 
 				AddItem(Item->ItemData);
-				ItemStackSize -= Item->ItemData->StackSize;
+
+				break;
 			} else {
 				UE_LOG(LogTemp, Warning, TEXT("[Stack Loop] %i - Index"), StackableItemIndex);
-				ItemStackSize = StackItem(StackableItemIndex, Item->ItemData);
+				ItemStackSize -= StackItem(StackableItemIndex, Item->ItemData);
+				Item->ItemData->StackSize = ItemStackSize;
 			}
 
 		}
@@ -215,7 +217,7 @@ int UInventoryComponent::StackItem(int Index, UItemBase* Item) {
 		
 		UE_LOG(LogTemp, Warning, TEXT("[Stack Logic] %i - Remaining stack"), Item->StackSize - CurrentStackSize);
 
-		return Item->StackSize - CurrentStackSize;
+		return PlayerItems[Index]->MaxStackSize - Item->StackSize;
 
 	}
 
