@@ -17,3 +17,9 @@ void UInventoryItemWidget::SetItemImage(UTexture2D* Texture) {
 	ItemImage->SetBrushFromTexture(Texture);
 
 }
+
+void UInventoryItemWidget::ResetVisuals() {
+
+	SetItemImage(DefaultTexture);
+
+}

@@ -179,6 +179,8 @@ int UInventoryComponent::FindIndexOfItem(UItemBase* Item) {
 	return -1;
 }
 
+
+
 int UInventoryComponent::FindIndexOfStackableItem(UItemBase* Item) {
 
 	for (int i = 0; i < PlayerItems.Num(); i++) {

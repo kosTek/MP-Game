@@ -14,6 +14,7 @@
 #include "InventoryComponent.h"
 #include "CharacterWidget.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Engine/LocalPlayer.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -47,6 +48,10 @@ ADrugEmpireCharacter::ADrugEmpireCharacter()
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 
+	InventoryComponent->OnInventoryUpdate.AddDynamic(this, &ADrugEmpireCharacter::InventoryUpdate);
+
+	PlayerUsingUI = false;
+
 }
 
 void ADrugEmpireCharacter::BeginPlay()
@@ -63,6 +68,7 @@ void ADrugEmpireCharacter::BeginPlay()
 		}
 	}
 
+	ClientCreateCharacterWidget();
 }
 
 //////////////////////////////////////////////////////////////////////////// Input
@@ -97,6 +103,8 @@ void ADrugEmpireCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 void ADrugEmpireCharacter::Move(const FInputActionValue& Value)
 {
+	if (PlayerUsingUI) { return; }
+
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
@@ -129,24 +137,39 @@ void ADrugEmpireCharacter::Interact() {
 
 }
 
-void ADrugEmpireCharacter::CharacterMenu() {
+void ADrugEmpireCharacter::CharacterMenu_Implementation() {
 
-	if (CharacterWidget != nullptr) {
-		CharacterWidget->RemoveFromParent();
-		CharacterWidget = nullptr;
+	if (CharacterWidget == nullptr) { return; }
+
+	if (CharacterWidget->IsVisible()) {
+		CharacterWidget->SetVisibility(ESlateVisibility::Hidden);
 
 		ToggleWidgetInput(false);
-
-		return;
-	}
-
-	CharacterWidget = Cast<UCharacterWidget>(CreateWidget(GetWorld(), CharacterWidgetClass));
-
-	if (CharacterWidget != nullptr) {
-		CharacterWidget->AddToViewport();
+	} else {
+		CharacterWidget->SetVisibility(ESlateVisibility::Visible);
 
 		ToggleWidgetInput(true);
 	}
+
+	//if (CharacterWidget != nullptr) {
+	//	this->InventoryComponent->OnInventoryUpdate.RemoveDynamic(CharacterWidget, &UCharacterWidget::RefreshInventory);
+
+	//	CharacterWidget->RemoveFromParent();
+	//	CharacterWidget = nullptr;
+
+	//	ToggleWidgetInput(false);
+
+	//	return;
+	//}
+
+	//CharacterWidget = Cast<UCharacterWidget>(CreateWidget(GetWorld(), CharacterWidgetClass));
+	////CharacterWidget->SetOwningPlayer(this->GetController()->Pawn)
+
+	//if (CharacterWidget != nullptr) {
+	//	CharacterWidget->AddToViewport();
+
+	//	ToggleWidgetInput(true);
+	//}
 
 }
 
@@ -174,7 +197,34 @@ void ADrugEmpireCharacter::ToggleWidgetInput(bool Show) {
 		GetCharacterMovement()->MaxWalkSpeed = 600.f;
 	}
 
+	PlayerUsingUI = Show;
+	ServerChangePlayerMaxSpeed(GetCharacterMovement()->MaxWalkSpeed);
+
 	PC->SetShowMouseCursor(Show);
 	PC->bEnableMouseOverEvents = Show;
+
+}
+
+void ADrugEmpireCharacter::ServerChangePlayerMaxSpeed_Implementation(float NewSpeed) {
+
+	GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
+
+}
+
+void ADrugEmpireCharacter::ClientCreateCharacterWidget_Implementation() {
+
+	CharacterWidget = Cast<UCharacterWidget>(CreateWidget(GetWorld(), CharacterWidgetClass));
+	CharacterWidget->SetVisibility(ESlateVisibility::Hidden);
+	CharacterWidget->AddToViewport();
+
+}
+
+void ADrugEmpireCharacter::InventoryUpdate_Implementation() {
+
+	UE_LOG(LogTemp, Warning, TEXT("Update called by %s"), *this->GetName());
+
+	if (CharacterWidget) {
+		CharacterWidget->RefreshInventory();
+	}
 
 }

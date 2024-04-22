@@ -56,6 +56,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int FindIndexOfItem(UItemBase* Item);
 
+	/* Returns player's current items in inventory */
+	UFUNCTION(BlueprintCallable)
+	TArray<UItemBase*> GetPlayerItems() { return PlayerItems; };
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

@@ -104,7 +104,9 @@ protected:
 	void Interact();
 
 	/* Called to open character menu */
+	UFUNCTION(Client, Reliable)
 	void CharacterMenu();
+	void CharacterMenu_Implementation();
 
 	// APawn interface
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
@@ -113,9 +115,24 @@ protected:
 
 private:
 
+	bool PlayerUsingUI;
+
 	void ToggleWidgetInput(bool Show);
 
+	UFUNCTION(Server, Reliable)
+	void ServerChangePlayerMaxSpeed(float NewSpeed);
+	void ServerChangePlayerMaxSpeed_Implementation(float NewSpeed);
+
 	class UCharacterWidget* CharacterWidget;
+
+	/* Called on begin play, creates character widget in the background */
+	UFUNCTION(Client, Reliable)
+	void ClientCreateCharacterWidget();
+	void ClientCreateCharacterWidget_Implementation();
+
+	UFUNCTION(Client, Reliable)
+	void InventoryUpdate();
+	void InventoryUpdate_Implementation();
 
 };
 

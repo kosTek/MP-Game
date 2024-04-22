@@ -28,8 +28,16 @@ public:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UImage* BorderImage;
 
+	UPROPERTY(EditAnywhere)
+	UTexture2D* DefaultTexture;
+
 	UFUNCTION(BlueprintCallable)
 	void SetItemImage(UTexture2D* Texture);
+
+	UFUNCTION(BlueprintCallable)
+	void ResetVisuals();
+
+private:
 
 
 };
